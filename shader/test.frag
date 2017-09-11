@@ -1,15 +1,17 @@
 #version 450
 
 in vec2 st;
-in vec3 p_f;
-in mat4 view_f;
 
 uniform sampler2D tex;
 out vec4 FragColor;  
   
 void main()  
 {  
+	FragColor = texture2D(tex, st);
+	return;
+
     vec4 C = texture2D(tex, st);
+	/*
 	vec4 P = view_f * vec4(p_f, 1.0);
 
 	//FragColor = vec4(C.a, C.a, C.a, 1.0);
@@ -31,4 +33,5 @@ void main()
 
 	//P.z = P.z * 10;
 	//FragColor = vec4(P.z/255.0, P.z/255.0, P.z/255.0, 1.0);
+	*/
 }  
