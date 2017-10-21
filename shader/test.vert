@@ -7,7 +7,6 @@ uniform mat4 view;
 uniform mat4 model;
 
 out vec2 st;
-out vec4 color;
 
 void main() {  
 	//vec4 T = proj*view*model*vec4(p[0], p[1], p[2], 1.0);
@@ -15,7 +14,6 @@ void main() {
 	//gl_Position = vec4(texCoord[0], texCoord[1], 0.0, 1.0);
 	gl_Position = vec4(T.xy/T.w, T.z/T.w/10, 1.0);
 	st = vec2(texCoord[0], texCoord[1]);
-	return;
 
 	/*
 	//vec4 T0 = view*vec4(p[0], p[1], p[2], 1.0);

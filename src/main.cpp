@@ -19,8 +19,8 @@ using namespace jhw_gl;
 
 
 
-char g_mesh_path[128] = "mesh/head.obj";
-char g_tex_path[128] = "res/head_tex.png";
+char g_mesh_path[128] = "mesh/xyzaxis.obj";
+char g_tex_path[128] = "res/axis_tex.png";
 GLenum image_type = GL_RGBA;
 int image_channels = 4;
 
@@ -39,7 +39,7 @@ float proj_matrix[16] = {
 };
 
 //use opencv 3d coordinate system
-CameraPose model_tran(G.Intrinsic, M_PI, 0., 0., 0., 0., 0.);
+CameraPose model_tran(G.Intrinsic, 0., 0., M_PI, 0., 0., 0.);
 float *model_matrix = model_tran.getViewMatrix();
 
 //get view by CameraPose
@@ -156,6 +156,26 @@ private:
 };
 
 
+void image_flip_vertically(u32 *image, int m_w, int m_h) {
+	for (int i = 0; i < (m_h >> 1); ++i) {
+		for (int j = 0; j < m_w; ++j) {
+			u32 tmp = image[i*m_w + j];
+			image[i*m_w + j] = image[(m_h - i - 1)*m_w + j];
+			image[(m_h - i - 1)*m_w + j] = tmp;
+		}
+	}
+}
+
+void image_flip_vertically(u8 *image, int m_w, int m_h) {
+	for (int i = 0; i < (m_h >> 1); ++i) {
+		for (int j = 0; j < m_w; ++j) {
+			u8 tmp = image[i*m_w + j];
+			image[i*m_w + j] = image[(m_h - i - 1)*m_w + j];
+			image[(m_h - i - 1)*m_w + j] = tmp;
+		}
+	}
+}
+
 int main(int argc, char ** argv) {
 	
 	GLInit(G.w, G.h);
@@ -186,7 +206,7 @@ int main(int argc, char ** argv) {
 
 		//use AngleAxisd to set camera
 		
-		Eigen::Matrix3d R = Eigen::AngleAxisd(M_PI / 5 - i * 0.01, Eigen::Vector3d(1.0, 1.0, 0.0).normalized()).toRotationMatrix();
+		Eigen::Matrix3d R = Eigen::AngleAxisd(M_PI - i * 0.02, Eigen::Vector3d(0.0, 1.0, 0.0).normalized()).toRotationMatrix();
 		cout << "R = " << endl;
 		cout << R << endl;
 		Eigen::Vector3d t = Eigen::Vector3d(0.0, double(i) / 100, 5);
@@ -201,10 +221,33 @@ int main(int argc, char ** argv) {
 		model_renderer.setUniform4v("view", view_matrix);
 		model_renderer.setUniform4v("model", model_matrix);
 		model_renderer.setTexSub2D("tex", model_tex, 0, GL_TEXTURE0, texture);
-
+		/*
+		cout << "model" << endl;
+		for (int i = 0; i < 4; ++i) {
+			for (int j = 0; j < 4; ++j)
+				std::cout << model_matrix[i*4+j] << " ";
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+		cout << "view" << endl;
+		for (int i = 0; i < 4; ++i) {
+			for (int j = 0; j < 4; ++j)
+				std::cout << view_matrix[i * 4 + j] << " ";
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+		cout << "proj" << endl;
+		for (int i = 0; i < 4; ++i) {
+			for (int j = 0; j < 4; ++j)
+				std::cout << proj_matrix[i * 4 + j] << " ";
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+		*/
 		u32 *result = (u32*)model_renderer.RenderScence();
 
-		//NOTICE: output without vertical flip!
+		//NOTICE: result without vertical flip!
+		image_flip_vertically(result, G.w, G.h);
 		stbi_write_png(path_tmp, G.w, G.h, image_channels, result, image_channels * sizeof(unsigned char)*G.w);
 	}
 
